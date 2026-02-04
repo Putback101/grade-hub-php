@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Activity Logs API</title>
+</head>
+<body>
+    <h1>Activity Logs API Test</h1>
+    <div id="result"></div>
+    
+    <script>
+        // Test if the API returns data
+        fetch('/grade-hub-php/public/api/dashboard.php?action=recent', {
+            credentials: 'include'  // Include cookies/session
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('API Response:', data);
+            const resultDiv = document.getElementById('result');
+            if (data.success && data.data) {
+                resultDiv.innerHTML = '<h2>Success! Found ' + data.data.length + ' activity logs</h2>';
+                resultDiv.innerHTML += '<pre>' + JSON.stringify(data.data.slice(0, 2), null, 2) + '</pre>';
+            } else if (data.error) {
+                resultDiv.innerHTML = '<h2>Error:</h2><p>' + data.error + '</p>';
+            } else {
+                resultDiv.innerHTML = '<h2>Unexpected response:</h2><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            document.getElementById('result').innerHTML = '<h2>Fetch Error:</h2><p>' + error.message + '</p>';
+        });
+    </script>
+</body>
+</html>

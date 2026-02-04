@@ -1,0 +1,33 @@
+{
+  "name": "grade-hub-php",
+  "description": "Grade Management System - PHP/MySQL Version",
+  "version": "1.0.0",
+  "php": ">=7.4",
+  "license": "MIT",
+  "requirements": {
+    "php": "7.4+",
+    "mysql": "5.7+",
+    "apache": "2.4+"
+  },
+  "authors": [
+    {
+      "name": "Grade Hub Team",
+      "email": "dev@gradehub.local"
+    }
+  ],
+  "scripts": {
+    "setup": "php database/setup.php",
+    "seed": "php database/seed.php",
+    "migrate": "php database/migrations.php"
+  },
+  "features": [
+    "User authentication",
+    "Role-based access control",
+    "Grade management",
+    "Grade approval workflow",
+    "Grade corrections",
+    "Activity logging",
+    "Dashboard statistics",
+    "Responsive design"
+  ]
+}
