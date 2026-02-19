@@ -71,6 +71,27 @@ class ActivityLog {
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
+    public static function getRecentPaginated($limit = 10, $offset = 0) {
+        $conn = Database::getInstance()->getConnection();
+        $stmt = $conn->prepare(
+            "SELECT al.*, u.name as user_name
+             FROM activity_logs al
+             JOIN users u ON al.user_id = u.id
+             ORDER BY al.created_at DESC
+             LIMIT ? OFFSET ?"
+        );
+        $stmt->bind_param('ii', $limit, $offset);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public static function countAll() {
+        $conn = Database::getInstance()->getConnection();
+        $result = $conn->query("SELECT COUNT(*) as total FROM activity_logs");
+        $row = $result ? $result->fetch_assoc() : ['total' => 0];
+        return (int) ($row['total'] ?? 0);
+    }
+
     public static function getUserActivitiesFiltered($user_id, $limit = 50, $excludeActions = []) {
         $conn = Database::getInstance()->getConnection();
 

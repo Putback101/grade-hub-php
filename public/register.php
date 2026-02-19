@@ -123,8 +123,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-color: #1f2a4a;
             box-shadow: 0 0 0 2px rgba(31, 42, 74, 0.2);
         }
+        .field > input,
+        .field > select,
+        .field > textarea {
+            border: 0 !important;
+            box-shadow: none !important;
+            background: transparent;
+            padding-top: 0;
+            padding-right: 0;
+            padding-bottom: 0;
+        }
+        .field > input:focus,
+        .field > select:focus,
+        .field > textarea:focus {
+            border: 0 !important;
+            box-shadow: none !important;
+            outline: none;
+        }
         .submit-btn {
             background: #1f2a4a;
+            border: 0;
+            appearance: none;
+            -webkit-appearance: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            line-height: 1.25rem;
         }
     </style>
 </head>
@@ -140,14 +163,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <div class="tab-pill mb-5">
-            <a href="./login">Login</a>
-            <a href="#" class="active">Sign Up</a>
-        </div>
-
         <div class="auth-card p-6 sm:p-7">
             <h2 class="text-xl font-bold text-slate-900 mb-1">Create account</h2>
-            <p class="text-sm text-slate-500 mb-6">It only takes a minute</p>
 
                 <?php if ($registerError): ?>
                 <div class="mb-6 p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-sm flex gap-3">
@@ -219,7 +236,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
-                    <button type="submit" class="submit-btn w-full text-white font-semibold py-3 rounded-xl transition duration-200">
+                    <button type="submit" class="submit-btn w-full text-white font-semibold py-3 rounded-xl transition duration-200" style="margin-top: 12px;">
                         Create Account
                     </button>
                 </form>

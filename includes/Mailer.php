@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../config.php';
 
 class Mailer {
     private static $instance = null;
@@ -85,6 +85,21 @@ class Mailer {
             }
         }
         return ['success' => $success, 'total' => count($recipients)];
+    }
+
+    public static function sendPasswordResetEmail($userEmail, $userName, $resetLink) {
+        $subject = "Reset Your Password - GradeHub";
+        $body = "
+            <html><body>
+            <p>Dear {$userName},</p>
+            <p>We received a request to reset your password.</p>
+            <p><a href='{$resetLink}'>Click here to reset your password</a></p>
+            <p>This link will expire in 1 hour.</p>
+            <p>If you did not request this, you can ignore this email.</p>
+            <p>Best regards,<br/>GradeHub Assessment System</p>
+            </body></html>
+        ";
+        return self::sendEmail($userEmail, $subject, $body, true);
     }
 }
 ?>

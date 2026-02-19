@@ -42,7 +42,8 @@ if ($method === 'POST' && $action === 'login') {
         ApiResponse::error('Email and password are required', 400);
     }
 
-    $result = Auth::login($data['email'], $data['password']);
+    $rememberMe = !empty($data['remember_me']);
+    $result = Auth::login($data['email'], $data['password'], $rememberMe);
 
     if ($result['success']) {
         ApiResponse::success($result['user'], 'Login successful');

@@ -115,7 +115,7 @@ function loadEnrollments() {
     table.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">Loading...</td></tr>';
 
     // Fetch enrollments for this subject
-    fetch(`/api/grades.php?action=enrollments&subject_id=${subjectId}`)
+    fetch(`/grade-hub-php/public/api/grades.php?action=enrollments&subject_id=${subjectId}`)
         .then(r => r.json())
         .then(d => {
             if (d.success && Array.isArray(d.data)) {

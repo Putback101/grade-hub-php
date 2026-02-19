@@ -12,11 +12,12 @@ $loginError = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
+    $rememberMe = isset($_POST['remember_me']) && $_POST['remember_me'] === '1';
 
     if (empty($email) || empty($password)) {
         $loginError = 'Email and password are required';
     } else {
-        $result = Auth::login($email, $password);
+        $result = Auth::login($email, $password, $rememberMe);
         if ($result['success']) {
             header('Location: ./dashboard');
             exit;
@@ -32,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - GradeHub</title>
+    <title>Login</title>
     <link rel="stylesheet" href="./assets/css/tailwind.css">
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -105,8 +106,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-color: #1f2a4a;
             box-shadow: 0 0 0 2px rgba(31, 42, 74, 0.2);
         }
+        .field > input,
+        .field > select,
+        .field > textarea {
+            border: 0 !important;
+            box-shadow: none !important;
+            background: transparent;
+            padding-top: 0;
+            padding-right: 0;
+            padding-bottom: 0;
+        }
+        .field > input:focus,
+        .field > select:focus,
+        .field > textarea:focus {
+            border: 0 !important;
+            box-shadow: none !important;
+            outline: none;
+        }
         .submit-btn {
             background: #1f2a4a;
+            border: 0;
+            appearance: none;
+            -webkit-appearance: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            line-height: 1.25rem;
         }
     </style>
 </head>
@@ -120,11 +144,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="text-lg font-bold text-slate-900">GradeHub</div>
                 <div class="text-sm text-slate-500">Assessment System</div>
             </div>
-        </div>
-
-        <div class="tab-pill mb-5">
-            <a href="#" class="active">Login</a>
-            <a href="./register">Sign Up</a>
         </div>
 
         <div class="auth-card p-6 sm:p-7">
@@ -155,7 +174,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
-                    <button type="submit" class="submit-btn w-full text-white font-semibold py-3 rounded-xl transition duration-200">
+                    <div class="flex items-center justify-between text-sm">
+                        <label class="text-slate-600 cursor-pointer" style="display:inline-flex; align-items:center; gap:8px; white-space:nowrap; margin-bottom:0;">
+                            <input type="checkbox" name="remember_me" value="1" <?php echo (!empty($_POST['remember_me']) ? 'checked' : ''); ?> class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900">
+                            <span>Remember me</span>
+                        </label>
+                        <a href="./auth/forgot-password" class="text-slate-700 hover:text-slate-900 font-medium">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="submit-btn w-full text-white font-semibold py-3 rounded-xl transition duration-200" style="margin-top: 12px;">
                         Sign In
                     </button>
                 </form>

@@ -33,10 +33,10 @@ const API = {
     },
 
     auth: {
-        login(email, password) {
+        login(email, password, remember_me = false) {
             return API.request('/grade-hub-php/public/api/auth.php?action=login', {
                 method: 'POST',
-                body: { email, password }
+                body: { email, password, remember_me }
             });
         },
         logout() {

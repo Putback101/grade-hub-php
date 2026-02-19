@@ -14,19 +14,25 @@ if (basename($_SERVER['PHP_SELF']) !== 'login.php' && basename($_SERVER['PHP_SEL
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $pageTitle ?? 'GradeHub'; ?></title>
+    <?php
+    $titleText = $pageTitle ?? 'GradeHub';
+    $titleText = preg_replace('/\s*-\s*Grade\s*Hub\s*$/i', '', $titleText);
+    $titleText = preg_replace('/\s*-\s*GradeHub\s*$/i', '', $titleText);
+    ?>
+    <title><?php echo htmlspecialchars($titleText); ?></title>
     <link rel="stylesheet" href="./assets/css/tailwind.css">
     <link rel="stylesheet" href="./assets/css/style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-background text-foreground">
-    <div class="d-flex vh-100 overflow-hidden">
+    <div class="app-shell d-flex min-vh-100 overflow-hidden">
         <!-- Sidebar -->
         <?php if (Auth::isAuthenticated()): ?>
-        <aside class="bg-dark text-light border-end d-flex flex-column flex-shrink-0 overflow-auto" style="width: 260px; background-color: #1a1f3a;">
+        <aside id="appSidebar" class="app-sidebar offcanvas-lg offcanvas-start bg-dark text-light border-end d-flex flex-column flex-shrink-0 overflow-auto" tabindex="-1" style="width: 260px; background-color: #1a1f3a;">
             <!-- Sidebar Header -->
-            <div class="p-4 border-bottom d-flex align-items-center gap-3" style="border-bottom-color: rgba(255,255,255,0.1);">
+            <div class="p-4 border-bottom d-flex align-items-center justify-content-between" style="border-bottom-color: rgba(255,255,255,0.1);">
+                <div class="d-flex align-items-center gap-3">
                 <div class="d-flex align-items-center justify-content-center flex-shrink-0 rounded" style="width:45px; height:45px; background: linear-gradient(135deg, #20c997 0%, #198754 100%);">
                     <i class="fas fa-graduation-cap text-white" style="font-size: 1.3rem;"></i>
                 </div>
@@ -34,6 +40,10 @@ if (basename($_SERVER['PHP_SELF']) !== 'login.php' && basename($_SERVER['PHP_SEL
                     <h1 class="fw-bold mb-0 text-white" style="font-size:1rem; letter-spacing: -0.3px;">GradeHub</h1>
                     <p class="text-light opacity-70 mb-0" style="font-size:0.7rem; font-weight: 400;">Assessment System</p>
                 </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-light d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#appSidebar" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
 
             <!-- Navigation -->
@@ -70,7 +80,6 @@ if (basename($_SERVER['PHP_SELF']) !== 'login.php' && basename($_SERVER['PHP_SEL
                         ['url' => './grades', 'icon' => 'fa-eye', 'label' => 'My Grades'],
                         ['url' => './grade-corrections', 'icon' => 'fa-file-alt', 'label' => 'Corrections'],
                         ['url' => './reports', 'icon' => 'fa-chart-bar', 'label' => 'Reports'],
-                        ['url' => './activity-logs', 'icon' => 'fa-users', 'label' => 'Activity Logs'],
                     ];
                 }
                 
@@ -91,11 +100,14 @@ if (basename($_SERVER['PHP_SELF']) !== 'login.php' && basename($_SERVER['PHP_SEL
         <?php endif; ?>
 
         <!-- Main Content -->
-        <div class="d-flex flex-column flex-grow-1 overflow-hidden">
+        <div class="app-main d-flex flex-column flex-grow-1 overflow-hidden">
             <!-- Header -->
             <?php if (Auth::isAuthenticated()): ?>
-            <header class="border-bottom bg-light px-4 d-flex align-items-center justify-content-between flex-shrink-0" style="height: 64px;">
-                <div>
+            <header class="border-bottom bg-light px-3 px-md-4 d-flex align-items-center justify-content-between flex-shrink-0" style="height: 64px;">
+                <div class="d-flex align-items-center gap-2 gap-md-3">
+                    <button class="btn btn-light border d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#appSidebar" aria-controls="appSidebar">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <?php
                         $pageMeta = [
                             'dashboard' => ['title' => 'Dashboard', 'subtitle' => 'Overview of system activity and stats'],
@@ -110,9 +122,9 @@ if (basename($_SERVER['PHP_SELF']) !== 'login.php' && basename($_SERVER['PHP_SEL
                         $meta = $pageMeta[$currentPage] ?? null;
                     ?>
                     <?php if ($meta): ?>
-                        <div class="d-flex flex-column">
+                        <div class="d-flex flex-column overflow-hidden">
                             <h1 class="h5 mb-0"><?php echo $meta['title']; ?></h1>
-                            <span class="text-muted" style="font-size: 0.8rem;"><?php echo $meta['subtitle']; ?></span>
+                            <span class="text-muted d-none d-md-inline" style="font-size: 0.8rem;"><?php echo $meta['subtitle']; ?></span>
                         </div>
                     <?php else: ?>
                         <h1 class="h5 mb-0"><?php echo $pageTitle ?? 'GradeHub'; ?></h1>
@@ -139,6 +151,12 @@ if (basename($_SERVER['PHP_SELF']) !== 'login.php' && basename($_SERVER['PHP_SEL
                         <!-- Dropdown Menu -->
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             <li>
+                                <a class="dropdown-item" href="./profile">
+                                    <i class="fas fa-user me-2"></i> Profile
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
                                 <form method="POST" action="/grade-hub-php/public/logout.php" style="margin:0;">
                                     <button type="submit" class="dropdown-item" style="border:none; background:none; width:100%; text-align:left; cursor:pointer; padding:0.5rem 1rem;">
                                         <i class="fas fa-sign-out-alt me-2"></i> Logout
@@ -152,7 +170,7 @@ if (basename($_SERVER['PHP_SELF']) !== 'login.php' && basename($_SERVER['PHP_SEL
             <?php endif; ?>
 
             <!-- Page Content -->
-            <main class="flex-grow-1 overflow-y-auto bg-light">
+            <main class="app-content flex-grow-1 overflow-y-auto bg-light">
                 <?php echo $content ?? ''; ?>
             </main>
         </div>

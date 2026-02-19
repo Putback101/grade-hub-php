@@ -471,3 +471,41 @@ input::placeholder {
         grid-template-columns: 1fr;
     }
 }
+
+/* App shell responsive behavior */
+.app-sidebar {
+    width: 260px;
+}
+
+@media (max-width: 991.98px) {
+    .app-shell {
+        overflow: visible !important;
+    }
+
+    .app-main {
+        min-width: 0;
+    }
+
+    .app-content {
+        overflow-x: auto;
+    }
+
+    .container-fluid {
+        padding-left: 0.875rem;
+        padding-right: 0.875rem;
+    }
+
+    .card {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .table-responsive {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-responsive table,
+    .app-content table {
+        min-width: 680px;
+    }
+}

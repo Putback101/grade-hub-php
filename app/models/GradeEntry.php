@@ -71,6 +71,58 @@ class GradeEntry {
         return $stmt->get_result()->fetch_assoc();
     }
 
+    // Get grade entry by enrollment ID
+    public function getByEnrollmentId($enrollmentId) {
+        $stmt = $this->conn->prepare(
+            "SELECT * FROM {$this->table} WHERE enrollment_id = ? LIMIT 1"
+        );
+        $stmt->bind_param('s', $enrollmentId);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
+
+    // Get enrollment rows with grade data for one subject
+    public function getSubjectEnrollmentGrades($subjectId) {
+        $stmt = $this->conn->prepare(
+            "SELECT e.id,
+                    u.student_id,
+                    u.name AS student_name,
+                    ge.id AS grade_entry_id,
+                    ge.prelim_grade,
+                    ge.midterm_grade,
+                    ge.final_grade,
+                    ge.computed_grade,
+                    COALESCE(ge.status, 'draft') AS status
+             FROM enrollments e
+             INNER JOIN users u ON u.id = e.student_id
+             LEFT JOIN {$this->table} ge ON ge.enrollment_id = e.id
+             WHERE e.subject_id = ?
+             ORDER BY u.name ASC"
+        );
+        $stmt->bind_param('s', $subjectId);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Create or update grades by enrollment record
+    public function upsertByEnrollment($enrollmentId, $data, $encodedBy) {
+        $existing = $this->getByEnrollmentId($enrollmentId);
+        if (!$existing) {
+            $create = $this->create([
+                'enrollment_id' => $enrollmentId,
+                'encoded_by' => $encodedBy
+            ]);
+            if (!$create['success']) {
+                return false;
+            }
+            $gradeEntryId = $create['id'];
+        } else {
+            $gradeEntryId = $existing['id'];
+        }
+
+        return $this->updateGrades($gradeEntryId, $data);
+    }
+
     // Create grade entry
     public function create($data) {
         $this->id = $this->generateUUID();

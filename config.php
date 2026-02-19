@@ -8,6 +8,8 @@ define('DB_PORT', 3306);
 
 // Session configuration
 define('SESSION_LIFETIME', 3600); // 1 hour
+define('REMEMBER_ME_LIFETIME', 2592000); // 30 days
+define('PASSWORD_RESET_LIFETIME', 3600); // 1 hour
 define('APP_NAME', 'Grade Hub');
 define('APP_URL', 'http://localhost:8000');
 

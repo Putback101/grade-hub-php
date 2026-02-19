@@ -9,6 +9,7 @@ require_once __DIR__ . '/../../app/models/GradeEntry.php';
 require_once __DIR__ . '/../../app/models/Enrollment.php';
 require_once __DIR__ . '/../../app/models/GradeCorrection.php';
 require_once __DIR__ . '/../../app/models/ActivityLog.php';
+require_once __DIR__ . '/../../app/models/Subject.php';
 require_once __DIR__ . '/../../app/middleware/Auth.php';
 
 Auth::requireAuth();
@@ -32,6 +33,28 @@ if ($method === 'GET' && $action === 'list') {
     $gradeEntry = new GradeEntry();
     $grades = $gradeEntry->getAll($filters);
     ApiResponse::success($grades);
+}
+
+if ($method === 'GET' && $action === 'enrollments') {
+    Auth::requireRole(['faculty', 'admin']);
+    $subjectId = $_GET['subject_id'] ?? null;
+    if (!$subjectId) {
+        ApiResponse::error('Subject ID is required', 400);
+    }
+
+    $subject = new Subject();
+    $subjectData = $subject->getById($subjectId);
+    if (!$subjectData) {
+        ApiResponse::error('Subject not found', 404);
+    }
+
+    if ($user['role'] === 'faculty' && $subjectData['faculty_id'] !== $user['id']) {
+        ApiResponse::error('Unauthorized', 403);
+    }
+
+    $gradeEntry = new GradeEntry();
+    $rows = $gradeEntry->getSubjectEnrollmentGrades($subjectId);
+    ApiResponse::success($rows);
 }
 
 if ($method === 'GET' && $action === 'pending') {
@@ -77,6 +100,52 @@ if ($method === 'POST' && $action === 'update') {
     } else {
         ApiResponse::error('Failed to update grade');
     }
+}
+
+if ($method === 'POST' && $action === 'encode') {
+    Auth::requireRole(['faculty', 'admin']);
+    $payload = json_decode(file_get_contents('php://input'), true);
+
+    $subjectId = $payload['subject_id'] ?? null;
+    $grades = $payload['grades'] ?? [];
+
+    if (!$subjectId || !is_array($grades)) {
+        ApiResponse::error('Subject ID and grades are required', 400);
+    }
+
+    $subject = new Subject();
+    $subjectData = $subject->getById($subjectId);
+    if (!$subjectData) {
+        ApiResponse::error('Subject not found', 404);
+    }
+
+    if ($user['role'] === 'faculty' && $subjectData['faculty_id'] !== $user['id']) {
+        ApiResponse::error('Unauthorized', 403);
+    }
+
+    $gradeEntry = new GradeEntry();
+    foreach ($grades as $row) {
+        if (empty($row['enrollment_id'])) {
+            continue;
+        }
+
+        $ok = $gradeEntry->upsertByEnrollment(
+            $row['enrollment_id'],
+            [
+                'prelim_grade' => $row['prelim_grade'] ?? null,
+                'midterm_grade' => $row['midterm_grade'] ?? null,
+                'final_grade' => $row['final_grade'] ?? null
+            ],
+            $user['id']
+        );
+
+        if (!$ok) {
+            ApiResponse::error('Failed to save one or more grade records');
+        }
+    }
+
+    ActivityLog::log($user['id'], 'ENCODE_GRADE', 'Saved grades for subject: ' . $subjectId);
+    ApiResponse::success(null, 'Grades saved successfully');
 }
 
 if ($method === 'POST' && $action === 'submit') {

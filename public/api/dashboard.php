@@ -19,10 +19,12 @@ $action = $_GET['action'] ?? '';
 $user = Auth::getCurrentUser();
 
 if ($action === 'recent') {
-    if ($user['role'] === 'faculty') {
-        $activities = ActivityLog::getUserActivitiesFiltered($user['id'], 20, ['LOGIN', 'LOGOUT']);
-    } else {
+    if ($user['role'] === 'admin') {
+        // Admin can track activity across all roles.
         $activities = ActivityLog::getRecent(20);
+    } else {
+        // Non-admin users can only see their own recent activity.
+        $activities = ActivityLog::getUserActivitiesFiltered($user['id'], 20, ['LOGIN', 'LOGOUT']);
     }
     ApiResponse::success($activities);
 }
